@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import FnFin006_TabelaPrecos from './components/FnFin006_TabelaPrecos';
+import FnFin006_TabelaPrecos from './components/financeiro/FnFin006_TabelaPrecos';
 
 const App = () => {
   const [tela, setTela] = useState('inicio');
