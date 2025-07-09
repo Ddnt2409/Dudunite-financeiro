@@ -1,29 +1,39 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import FnFin006_TabelaPrecos from '../components/financeiro/FnFin006_TabelaPrecos';
+import React, { useState } from 'react';
+import FnFin006_TabelaPrecos from './components/FnFin006_TabelaPrecos';
 
 const App = () => {
-  return (
-    <Router>
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">Módulo Financeiro – Dudunitê</h1>
-        
-        {/* Menu */}
-        <nav className="mb-4">
-          <Link
-            to="/tabela-precos"
-            className="bg-gray-200 hover:bg-gray-300 text-sm px-4 py-2 rounded mr-2"
-          >
-            Tabela de Preços
-          </Link>
-        </nav>
+  const [tela, setTela] = useState('inicio');
 
-        {/* Rotas */}
-        <Routes>
-          <Route path="/tabela-precos" element={<FnFin006_TabelaPrecos />} />
-        </Routes>
-      </div>
-    </Router>
+  return (
+    <div className="bg-[#FFF3E9] min-h-screen p-4 text-[#5C1D0E]">
+      {tela === 'inicio' && (
+        <div>
+          <h1 className="text-2xl font-bold mb-2">Módulo Financeiro – Dudunitê</h1>
+          <p className="mb-4">Bem-vindo ao sistema! Selecione uma opção no menu.</p>
+
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => setTela('tabelaPrecos')}
+              className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded"
+            >
+              Tabela de Preços
+            </button>
+          </div>
+        </div>
+      )}
+
+      {tela === 'tabelaPrecos' && (
+        <div>
+          <button
+            onClick={() => setTela('inicio')}
+            className="mb-4 bg-gray-300 hover:bg-gray-400 text-black py-1 px-3 rounded"
+          >
+            Voltar
+          </button>
+          <FnFin006_TabelaPrecos />
+        </div>
+      )}
+    </div>
   );
 };
 
