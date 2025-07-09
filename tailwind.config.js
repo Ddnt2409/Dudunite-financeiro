@@ -1,1 +1,12 @@
-// tailwind.config.js - estrutura inicial do módulo financeiro
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        terra: '#a0522d'
+      }
+    },
+  },
+  plugins: [],
+}
