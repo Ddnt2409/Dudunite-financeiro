@@ -1,32 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
-import db from '../../firebase';
+import React, { useEffect, useState } from 'react';
 
 const FnFin006_TabelaPrecos = () => {
-  const [modoEdicao, setModoEdicao] = useState('novo'); // novo ou alterar
+  const [modoEdicao, setModoEdicao] = useState(false);
   const [precos, setPrecos] = useState({
-    brw77: '',
-    brw66: '',
-    esc: '',
-    dudu: '',
-    pkt55: '',
-    pkt66: ''
+    brw7x7: 6.0,
+    brw6x6: 5.5,
+    esc: 4.65,
+    dudu: 4.65,
+    pkt5x5: 3.9,
+    pkt6x6: 4.4,
   });
-  const [docId, setDocId] = useState('');
-  const [dataCadastro, setDataCadastro] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setPrecos({ ...precos, [name]: parseFloat(value) });
+  };
+
+  const salvar = () => {
+    localStorage.setItem('tabela_precos', JSON.stringify(precos));
+    setModoEdicao(false);
+  };
 
   useEffect(() => {
-    if (modoEdicao === 'alterar') {
-      carregarPrecos();
-    } else {
-      setPrecos({
-        brw77: '',
-        brw66: '',
-        esc: '',
-        dudu: '',
-        pkt55: '',
-        pkt66: ''
-      });
-      setDataCadastro(new Date().toLocaleDateString('pt-BR'));
+    const dadosSalvos = localStorage.getItem('tabela_precos');
+    if (dadosSalvos) {
+      setPrecos(JSON.parse(dadosSalvos));
     }
-  }, [modoEdicao]);
+  }, []);
