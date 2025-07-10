@@ -79,5 +79,4 @@ const FnFin006_TabelaPrecos = () => {
     </div>
   );
 };
-
 export default FnFin006_TabelaPrecos;
