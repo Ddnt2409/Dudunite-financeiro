@@ -18,11 +18,39 @@ const App = () => {
             >
               Tabela de Preços
             </button>
+
+            <button
+              onClick={() => setTela('historicoPrecos')}
+              className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded"
+            >
+              Histórico de Alterações
+            </button>
+
+            <button
+              onClick={() => setTela('ctsReceber')}
+              className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded"
+            >
+              Contas a Receber
+            </button>
+
+            <button
+              onClick={() => setTela('ctsPagar')}
+              className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded"
+            >
+              Contas a Pagar
+            </button>
+
+            <button
+              onClick={() => setTela('fluxoCaixa')}
+              className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded"
+            >
+              Fluxo de Caixa
+            </button>
           </div>
         </div>
       )}
 
-      {tela === 'tabelaPrecos' && (
+      {tela !== 'inicio' && (
         <div>
           <button
             onClick={() => setTela('inicio')}
@@ -30,7 +58,24 @@ const App = () => {
           >
             Voltar
           </button>
-          <FnFin006_TabelaPrecos />
+
+          {tela === 'tabelaPrecos' && <FnFin006_TabelaPrecos />}
+
+          {tela === 'historicoPrecos' && (
+            <div className="text-lg">📅 Em breve: histórico de alterações da tabela de preços.</div>
+          )}
+
+          {tela === 'ctsReceber' && (
+            <div className="text-lg">💰 Em breve: módulo de contas a receber.</div>
+          )}
+
+          {tela === 'ctsPagar' && (
+            <div className="text-lg">📤 Em breve: módulo de contas a pagar.</div>
+          )}
+
+          {tela === 'fluxoCaixa' && (
+            <div className="text-lg">📊 Em breve: fluxo de caixa.</div>
+          )}
         </div>
       )}
     </div>
