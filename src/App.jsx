@@ -2,7 +2,7 @@
 // === FNintroFinFlux – APP COMPLETO COM FORMULÁRIOS DE CTS A PAGAR, A RECEBER E FLUXO DE CAIXA ===
 
 import React, { useState } from 'react';
-import TabelaPrecos from './components/financeiro/TabelaPrecos';
+import FnFin006_TabelaPrecos from './components/financeiro/FnFin006_TabelaPrecos';
 import ContasReceber from './components/financeiro/ContasReceber';
 import ContasPagar from './components/financeiro/ContasPagar';
 import FluxoCaixa from './components/financeiro/FluxoCaixa';
@@ -89,7 +89,7 @@ const App = () => {
           </button>
 
           {/* === INÍCIO RT06 – Tabela de Preços === */}
-          {tela === 'tabelaPrecos' && <TabelaPrecos />}
+          {tela === 'tabelaPrecos' && <FnFin006_TabelaPrecos />}
           {/* === FIM RT06 === */}
 
           {/* === INÍCIO Rec01 – Contas a Receber === */}
