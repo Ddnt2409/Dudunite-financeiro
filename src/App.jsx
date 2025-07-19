@@ -1,5 +1,5 @@
 // === PORTO SEGURO DO MÓDULO 2 ===
-// === FNintroFinFlux – TELA DE ENTRADA DO MÓDULO FINANCEIRO ===
+// === FNintroFinFlux – APP COMPLETO COM FORMULÁRIOS DE CTS A PAGAR, A RECEBER E FLUXO DE CAIXA ===
 
 import React, { useState } from 'react';
 import FnFin006_TabelaPrecos from './components/financeiro/FnFin006_TabelaPrecos';
@@ -30,7 +30,7 @@ const planoContasPagar = [
   { codigo: '0105', nome: 'Outras Despesas' },
 ];
 
-const FNintroFinFlux = () => {
+const App = () => {
   const [tela, setTela] = useState('inicio');
 
   return (
@@ -102,4 +102,4 @@ const FNintroFinFlux = () => {
   );
 };
 
-export default FNintroFinFlux;
+export default App;
