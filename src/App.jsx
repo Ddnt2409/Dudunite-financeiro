@@ -1,5 +1,5 @@
 // === PORTO SEGURO DO MÓDULO 2 ===
-// === FNFIN – APP COMPLETO COM FORMULÁRIOS DE CTS A PAGAR, A RECEBER E FLUXO DE CAIXA ===
+// === FNintroFinFlux – TELA DE ENTRADA DO MÓDULO FINANCEIRO ===
 
 import React, { useState } from 'react';
 import FnFin006_TabelaPrecos from './components/financeiro/FnFin006_TabelaPrecos';
@@ -30,7 +30,7 @@ const planoContasPagar = [
   { codigo: '0105', nome: 'Outras Despesas' },
 ];
 
-const App = () => {
+const FNintroFinFlux = () => {
   const [tela, setTela] = useState('inicio');
 
   return (
@@ -102,10 +102,4 @@ const App = () => {
   );
 };
 
-export default App;
-
-// Pendências anotadas: criação das coleções do Firestore
-// - 'cts_receber'
-// - 'cts_pagar'
-// - 'fluxo_caixa'
-// Aguardando criação no Firestore antes da implantação completa
+export default FNintroFinFlux;
