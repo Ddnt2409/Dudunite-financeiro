@@ -2,10 +2,10 @@
 // === FNintroFinFlux – APP COMPLETO COM FORMULÁRIOS DE CTS A PAGAR, A RECEBER E FLUXO DE CAIXA ===
 
 import React, { useState } from 'react';
-import FnFin006_TabelaPrecos from './components/financeiro/FnFin006_TabelaPrecos';
-import FnFin007_CtsReceber from './components/financeiro/FnFin007_CtsReceber';
-import FnFin008_CtsPagar from './components/financeiro/FnFin008_CtsPagar';
-import FnFin009_FluxoCaixa from './components/financeiro/FnFin009_FluxoCaixa';
+import TabelaPrecos from './components/financeiro/TabelaPrecos';
+import ContasReceber from './components/financeiro/ContasReceber';
+import ContasPagar from './components/financeiro/ContasPagar';
+import FluxoCaixa from './components/financeiro/FluxoCaixa';
 
 const planoContasReceber = [
   { codigo: '0201', nome: 'Receita de PDV', filhos: [
@@ -88,10 +88,21 @@ const App = () => {
             Voltar
           </button>
 
-          {tela === 'tabelaPrecos' && <FnFin006_TabelaPrecos />}
-          {tela === 'ctsReceber' && <FnFin007_CtsReceber planoContas={planoContasReceber} />}
-          {tela === 'ctsPagar' && <FnFin008_CtsPagar planoContas={planoContasPagar} />}
-          {tela === 'fluxoCaixa' && <FnFin009_FluxoCaixa />}
+          {/* === INÍCIO RT06 – Tabela de Preços === */}
+          {tela === 'tabelaPrecos' && <TabelaPrecos />}
+          {/* === FIM RT06 === */}
+
+          {/* === INÍCIO Rec01 – Contas a Receber === */}
+          {tela === 'ctsReceber' && <ContasReceber />}
+          {/* === FIM Rec01 === */}
+
+          {/* === INÍCIO RP01 – Contas a Pagar === */}
+          {tela === 'ctsPagar' && <ContasPagar planoContas={planoContasPagar} />}
+          {/* === FIM RP01 === */}
+
+          {/* === INÍCIO RF01 – Fluxo de Caixa === */}
+          {tela === 'fluxoCaixa' && <FluxoCaixa />}
+          {/* === FIM RF01 === */}
 
           {tela === 'historicoPrecos' && (
             <div className="text-lg">📅 Em breve: histórico de alterações da tabela de preços.</div>
