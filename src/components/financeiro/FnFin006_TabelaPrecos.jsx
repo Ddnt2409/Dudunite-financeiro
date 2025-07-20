@@ -53,8 +53,8 @@ const FnFin006_TabelaPrecos = ({ setTela }) => {
         const docId = idMap[produto];
         const ref = doc(db, 'tabela_precos', docId);
         await updateDoc(ref, {
-          revenda: parseFloat(valores.revenda),
-          varejo: parseFloat(valores.varejo),
+          revenda: parseFloat(valores.revenda || 0),
+          varejo: parseFloat(valores.varejo || 0),
           ultimaAlteracao: new Date().toISOString().split('T')[0],
         });
       });
@@ -67,13 +67,21 @@ const FnFin006_TabelaPrecos = ({ setTela }) => {
   };
 
   const formatarValor = (valor) => {
-    return `R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}`;
+    const numero = parseFloat(valor);
+    return isNaN(numero) ? '—' : `R$ ${numero.toFixed(2).replace('.', ',')}`;
   };
 
   const produtosOrdenados = Object.keys(precos).sort();
 
   return (
     <div className="p-4">
+      <button
+        onClick={() => setTela('inicio')}
+        className="mb-4 bg-gray-300 px-3 py-1 rounded"
+      >
+        Voltar
+      </button>
+
       <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
         <span role="img" aria-label="ícone">📋</span>
         Tabela de Preços Atuais
@@ -96,7 +104,7 @@ const FnFin006_TabelaPrecos = ({ setTela }) => {
                 {modoEdicao ? (
                   <input
                     type="text"
-                    value={precos[produto].revenda}
+                    value={precos[produto].revenda ?? ''}
                     onChange={(e) => handleChange(e, produto, 'revenda')}
                     className="w-full border rounded p-1"
                   />
@@ -108,7 +116,7 @@ const FnFin006_TabelaPrecos = ({ setTela }) => {
                 {modoEdicao ? (
                   <input
                     type="text"
-                    value={precos[produto].varejo}
+                    value={precos[produto].varejo ?? ''}
                     onChange={(e) => handleChange(e, produto, 'varejo')}
                     className="w-full border rounded p-1"
                   />
