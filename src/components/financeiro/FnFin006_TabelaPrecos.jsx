@@ -1,149 +1,145 @@
-// === INÍCIO FnFin006_TabelaPrecos.jsx ===
+// FnFin006_TabelaPrecos.jsx
+import React, { useState, useEffect } from 'react';
+import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
 
-import React, { useEffect, useState } from 'react';
-import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
-import db from '../../firebase';
-
-const FnFin006_TabelaPrecos = ({ setTela }) => {
-  const [modoEdicao, setModoEdicao] = useState(false);
+function FnFin006_TabelaPrecos({ voltarInicio }) {
   const [precos, setPrecos] = useState({});
-  const [idMap, setIdMap] = useState({});
+  const [modoEdicao, setModoEdicao] = useState(false);
+  const [valoresEdicao, setValoresEdicao] = useState({});
 
   useEffect(() => {
     const carregarPrecos = async () => {
-      try {
-        const precoRef = collection(db, 'tabela_precos');
-        const snapshot = await getDocs(precoRef);
-        const dados = {};
-        const idMapTemp = {};
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          const nome = data.produto.toUpperCase();
-          dados[nome] = {
-            revenda: data.revenda,
-            varejo: data.varejo,
-            ultimaAlteracao: data.ultimaAlteracao,
-          };
-          idMapTemp[nome] = doc.id;
-        });
-        setPrecos(dados);
-        setIdMap(idMapTemp);
-      } catch (error) {
-        console.error('Erro ao carregar preços:', error);
-      }
+      const precosRef = collection(db, 'tabela_precos');
+      const snapshot = await getDocs(precosRef);
+      const dados = {};
+      snapshot.forEach((doc) => {
+        dados[doc.id] = doc.data();
+      });
+      setPrecos(dados);
     };
-
     carregarPrecos();
   }, []);
 
-  const handleChange = (e, produto, tipo) => {
-    const valor = e.target.value.replace(',', '.');
-    setPrecos((prev) => ({
+  const produtos = [
+    'BRW6X6', 'BRW7X7', 'DUDU', 'ESC', 'PKT5X5', 'PKT6X6'
+  ];
+
+  const handleAlterarClick = () => {
+    setModoEdicao(true);
+    const valoresIniciais = {};
+    produtos.forEach((produto) => {
+      valoresIniciais[produto] = {
+        revenda: precos[produto]?.revenda?.toFixed(2).replace('.', ',') || '',
+        varejo: precos[produto]?.varejo?.toFixed(2).replace('.', ',') || '',
+      };
+    });
+    setValoresEdicao(valoresIniciais);
+  };
+
+  const handleInputChange = (produto, campo, valor) => {
+    setValoresEdicao((prev) => ({
       ...prev,
       [produto]: {
         ...prev[produto],
-        [tipo]: valor,
-      },
+        [campo]: valor
+      }
     }));
   };
 
-  const salvarAlteracoes = async () => {
-    try {
-      const promises = Object.entries(precos).map(async ([produto, valores]) => {
-        const docId = idMap[produto];
-        const ref = doc(db, 'tabela_precos', docId);
-        await updateDoc(ref, {
-          revenda: parseFloat(valores.revenda || 0),
-          varejo: parseFloat(valores.varejo || 0),
-          ultimaAlteracao: new Date().toISOString().split('T')[0],
-        });
-      });
+  const handleSalvarClick = async () => {
+    const novosPrecos = { ...precos };
 
-      await Promise.all(promises);
-      setModoEdicao(false);
-    } catch (error) {
-      console.error('Erro ao salvar alterações:', error);
+    for (const [produto, valores] of Object.entries(valoresEdicao)) {
+      const revendaNum = parseFloat(valores.revenda.replace(',', '.'));
+      const varejoNum = parseFloat(valores.varejo.replace(',', '.'));
+
+      if (!isNaN(revendaNum) && !isNaN(varejoNum)) {
+        novosPrecos[produto] = {
+          revenda: revendaNum,
+          varejo: varejoNum,
+          ultimaAlteracao: new Date().toISOString().split('T')[0]
+        };
+        await setDoc(doc(db, 'tabela_precos', produto), novosPrecos[produto]);
+      }
     }
-  };
 
-  const formatarValor = (valor) => {
-    const numero = parseFloat(valor);
-    return isNaN(numero) ? '—' : `R$ ${numero.toFixed(2).replace('.', ',')}`;
+    setPrecos(novosPrecos);
+    setModoEdicao(false);
   };
-
-  const produtosOrdenados = Object.keys(precos).sort();
 
   return (
     <div className="p-4">
-      <button
-        onClick={() => setTela('inicio')}
-        className="mb-4 bg-gray-300 px-3 py-1 rounded"
-      >
-        Voltar
-      </button>
+      <button onClick={voltarInicio} className="mb-4 px-3 py-1 bg-gray-200 rounded">Voltar</button>
 
-      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-        <span role="img" aria-label="ícone">📋</span>
-        Tabela de Preços Atuais
+      <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+        <span>📋</span> Tabela de Preços Atuais
       </h2>
 
-      <table className="min-w-full table-auto border rounded-md bg-white shadow">
-        <thead className="bg-orange-100">
-          <tr>
-            <th className="px-4 py-2 border">Produto</th>
-            <th className="px-4 py-2 border">Revenda</th>
-            <th className="px-4 py-2 border">Varejo</th>
-            <th className="px-4 py-2 border">Última Alteração</th>
-          </tr>
-        </thead>
-        <tbody>
-          {produtosOrdenados.map((produto) => (
-            <tr key={produto}>
-              <td className="px-4 py-2 border font-bold">{produto}</td>
-              <td className="px-4 py-2 border">
-                {modoEdicao ? (
-                  <input
-                    type="text"
-                    value={precos[produto].revenda ?? ''}
-                    onChange={(e) => handleChange(e, produto, 'revenda')}
-                    className="w-full border rounded p-1"
-                  />
-                ) : (
-                  formatarValor(precos[produto].revenda)
-                )}
-              </td>
-              <td className="px-4 py-2 border">
-                {modoEdicao ? (
-                  <input
-                    type="text"
-                    value={precos[produto].varejo ?? ''}
-                    onChange={(e) => handleChange(e, produto, 'varejo')}
-                    className="w-full border rounded p-1"
-                  />
-                ) : (
-                  formatarValor(precos[produto].varejo)
-                )}
-              </td>
-              <td className="px-4 py-2 border">
-                {precos[produto].ultimaAlteracao || '—'}
-              </td>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-300">
+          <thead>
+            <tr className="bg-orange-100 text-left">
+              <th className="py-2 px-4 border">Produto</th>
+              <th className="py-2 px-4 border">Revenda</th>
+              <th className="py-2 px-4 border">Varejo</th>
+              <th className="py-2 px-4 border">Última Alteração</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {produtos.map((produto) => {
+              const preco = precos[produto];
+              const edicao = valoresEdicao[produto] || {};
 
-      <div className="mt-4 flex justify-start gap-2">
+              return (
+                <tr key={produto} className="border-t">
+                  <td className="py-2 px-4 font-bold">{produto}</td>
+                  <td className="py-2 px-4">
+                    {modoEdicao ? (
+                      <input
+                        type="text"
+                        value={edicao.revenda || ''}
+                        onChange={(e) => handleInputChange(produto, 'revenda', e.target.value)}
+                        className="border px-2 py-1 w-24"
+                      />
+                    ) : (
+                      preco ? `R$ ${preco.revenda.toFixed(2).replace('.', ',')}` : '—'
+                    )}
+                  </td>
+                  <td className="py-2 px-4">
+                    {modoEdicao ? (
+                      <input
+                        type="text"
+                        value={edicao.varejo || ''}
+                        onChange={(e) => handleInputChange(produto, 'varejo', e.target.value)}
+                        className="border px-2 py-1 w-24"
+                      />
+                    ) : (
+                      preco ? `R$ ${preco.varejo.toFixed(2).replace('.', ',')}` : '—'
+                    )}
+                  </td>
+                  <td className="py-2 px-4">
+                    {preco?.ultimaAlteracao || '—'}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-6">
         {modoEdicao ? (
           <button
-            onClick={salvarAlteracoes}
+            onClick={handleSalvarClick}
             className="bg-orange-700 text-white px-4 py-2 rounded"
           >
             Salvar
           </button>
         ) : (
           <button
-            onClick={() => setModoEdicao(true)}
-            className="bg-orange-600 text-white px-4 py-2 rounded"
+            onClick={handleAlterarClick}
+            className="bg-orange-500 text-white px-4 py-2 rounded"
           >
             Alterar
           </button>
@@ -151,8 +147,6 @@ const FnFin006_TabelaPrecos = ({ setTela }) => {
       </div>
     </div>
   );
-};
+}
 
 export default FnFin006_TabelaPrecos;
-
-// === FIM FnFin006_TabelaPrecos.jsx ===
