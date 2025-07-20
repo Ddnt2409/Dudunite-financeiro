@@ -1,134 +1,141 @@
-// === INÍCIO FN06 – TABELA DE PREÇOS ATUAIS COM ALTERAÇÃO ===
+// === INÍCIO FnFin006_TabelaPrecos.jsx ===
 
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 import db from '../../firebase';
 
-const FnFin006_TabelaPrecos = () => {
+const FnFin006_TabelaPrecos = ({ setTela }) => {
   const [modoEdicao, setModoEdicao] = useState(false);
-  const [tabela, setTabela] = useState([]);
-  const [carregando, setCarregando] = useState(true);
+  const [precos, setPrecos] = useState({});
+  const [idMap, setIdMap] = useState({});
 
   useEffect(() => {
-    const carregarDados = async () => {
-      const ref = collection(db, 'tabela_precos');
-      const snapshot = await getDocs(ref);
-      const dados = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setTabela(dados);
-      setCarregando(false);
+    const carregarPrecos = async () => {
+      try {
+        const precoRef = collection(db, 'tabela_precos');
+        const snapshot = await getDocs(precoRef);
+        const dados = {};
+        const idMapTemp = {};
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const nome = data.produto.toUpperCase();
+          dados[nome] = {
+            revenda: data.revenda,
+            varejo: data.varejo,
+            ultimaAlteracao: data.ultimaAlteracao,
+          };
+          idMapTemp[nome] = doc.id;
+        });
+        setPrecos(dados);
+        setIdMap(idMapTemp);
+      } catch (error) {
+        console.error('Erro ao carregar preços:', error);
+      }
     };
 
-    carregarDados();
+    carregarPrecos();
   }, []);
 
-  const handleAlterar = () => {
-    setModoEdicao(true);
+  const handleChange = (e, produto, tipo) => {
+    const valor = e.target.value.replace(',', '.');
+    setPrecos((prev) => ({
+      ...prev,
+      [produto]: {
+        ...prev[produto],
+        [tipo]: valor,
+      },
+    }));
   };
 
-  const handleSalvar = async () => {
-    for (const item of tabela) {
-      const ref = doc(db, 'tabela_precos', item.id);
-      await updateDoc(ref, {
-        valor_revenda: Number(item.valor_revenda),
-        valor_varejo: Number(item.valor_varejo),
-        data: new Date().toISOString().slice(0, 10)
+  const salvarAlteracoes = async () => {
+    try {
+      const promises = Object.entries(precos).map(async ([produto, valores]) => {
+        const docId = idMap[produto];
+        const ref = doc(db, 'tabela_precos', docId);
+        await updateDoc(ref, {
+          revenda: parseFloat(valores.revenda),
+          varejo: parseFloat(valores.varejo),
+          ultimaAlteracao: new Date().toISOString().split('T')[0],
+        });
       });
+
+      await Promise.all(promises);
+      setModoEdicao(false);
+    } catch (error) {
+      console.error('Erro ao salvar alterações:', error);
     }
-    setModoEdicao(false);
   };
 
-  const handleAlterarCampo = (index, campo, valor) => {
-    const novaTabela = [...tabela];
-    novaTabela[index][campo] = valor;
-    setTabela(novaTabela);
+  const formatarValor = (valor) => {
+    return `R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}`;
   };
+
+  const produtosOrdenados = Object.keys(precos).sort();
 
   return (
-    <div className="bg-[#FFF3E9] min-h-screen p-4 text-[#5C1D0E]">
-      <button
-        onClick={() => window.history.back()}
-        className="mb-4 bg-gray-300 hover:bg-gray-400 text-black py-1 px-3 rounded"
-      >
-        Voltar
-      </button>
-
+    <div className="p-4">
       <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-        <span role="img" aria-label="tabela">📋</span> Tabela de Preços Atuais
+        <span role="img" aria-label="ícone">📋</span>
+        Tabela de Preços Atuais
       </h2>
 
-      {carregando ? (
-        <p>Carregando...</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-orange-300 bg-white">
-            <thead>
-              <tr className="bg-orange-100 text-left">
-                <th className="px-4 py-2 border">Produto</th>
-                <th className="px-4 py-2 border">Revenda</th>
-                <th className="px-4 py-2 border">Varejo</th>
-                <th className="px-4 py-2 border">Última Alteração</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tabela.map((item, index) => (
-                <tr key={item.id} className="border-t">
-                  <td className="px-4 py-2 border font-bold">{item.produto.toUpperCase()}</td>
+      <table className="min-w-full table-auto border rounded-md bg-white shadow">
+        <thead className="bg-orange-100">
+          <tr>
+            <th className="px-4 py-2 border">Produto</th>
+            <th className="px-4 py-2 border">Revenda</th>
+            <th className="px-4 py-2 border">Varejo</th>
+            <th className="px-4 py-2 border">Última Alteração</th>
+          </tr>
+        </thead>
+        <tbody>
+          {produtosOrdenados.map((produto) => (
+            <tr key={produto}>
+              <td className="px-4 py-2 border font-bold">{produto}</td>
+              <td className="px-4 py-2 border">
+                {modoEdicao ? (
+                  <input
+                    type="text"
+                    value={precos[produto].revenda}
+                    onChange={(e) => handleChange(e, produto, 'revenda')}
+                    className="w-full border rounded p-1"
+                  />
+                ) : (
+                  formatarValor(precos[produto].revenda)
+                )}
+              </td>
+              <td className="px-4 py-2 border">
+                {modoEdicao ? (
+                  <input
+                    type="text"
+                    value={precos[produto].varejo}
+                    onChange={(e) => handleChange(e, produto, 'varejo')}
+                    className="w-full border rounded p-1"
+                  />
+                ) : (
+                  formatarValor(precos[produto].varejo)
+                )}
+              </td>
+              <td className="px-4 py-2 border">
+                {precos[produto].ultimaAlteracao || '—'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-                  <td className="px-4 py-2 border">
-                    {modoEdicao ? (
-                      <input
-                        type="number"
-                        value={item.valor_revenda}
-                        onChange={(e) =>
-                          handleAlterarCampo(index, 'valor_revenda', e.target.value)
-                        }
-                        className="w-24 p-1 border rounded"
-                      />
-                    ) : (
-                      `R$ ${Number(item.valor_revenda).toFixed(2).replace('.', ',')}`
-                    )}
-                  </td>
-
-                  <td className="px-4 py-2 border">
-                    {modoEdicao ? (
-                      <input
-                        type="number"
-                        value={item.valor_varejo}
-                        onChange={(e) =>
-                          handleAlterarCampo(index, 'valor_varejo', e.target.value)
-                        }
-                        className="w-24 p-1 border rounded"
-                      />
-                    ) : (
-                      `R$ ${Number(item.valor_varejo).toFixed(2).replace('.', ',')}`
-                    )}
-                  </td>
-
-                  <td className="px-4 py-2 border">
-                    {item.data || '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      <div className="mt-6">
+      <div className="mt-4 flex justify-start gap-2">
         {modoEdicao ? (
           <button
-            onClick={handleSalvar}
-            className="bg-[#9C2B10] hover:bg-[#751d07] text-white py-2 px-4 rounded"
+            onClick={salvarAlteracoes}
+            className="bg-orange-700 text-white px-4 py-2 rounded"
           >
             Salvar
           </button>
         ) : (
           <button
-            onClick={handleAlterar}
-            className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded"
+            onClick={() => setModoEdicao(true)}
+            className="bg-orange-600 text-white px-4 py-2 rounded"
           >
             Alterar
           </button>
@@ -140,4 +147,4 @@ const FnFin006_TabelaPrecos = () => {
 
 export default FnFin006_TabelaPrecos;
 
-// === FIM FN06 ===
+// === FIM FnFin006_TabelaPrecos.jsx ===
