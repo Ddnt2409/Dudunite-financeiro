@@ -9,20 +9,24 @@ import FnFin009_FluxoCaixa from './components/financeiro/FnFin009_FluxoCaixa';
 
 const planoContasReceber = [
   {
-    codigo: '0201', nome: 'Receita de PDV', filhos: [
+    codigo: '0201',
+    nome: 'Receita de PDV',
+    filhos: [
       {
-        codigo: '0201001', nome: 'Cidade', filhos: [
+        codigo: '0201001',
+        nome: 'Cidade',
+        filhos: [
           { codigo: '0201001001', nome: 'Recife' },
           { codigo: '0201001002', nome: 'Gravatá' },
           { codigo: '0201001003', nome: 'Caruaru' },
-        ]
+        ],
       },
-    ]
+    ],
   },
   {
-    codigo: '0202', nome: 'Receita de Varejo', filhos: [
-      { codigo: '0202001', nome: 'Venda Direta' }
-    ]
+    codigo: '0202',
+    nome: 'Receita de Varejo',
+    filhos: [{ codigo: '0202001', nome: 'Venda Direta' }],
   },
   { codigo: '0203', nome: 'Receita de Empréstimos' },
   { codigo: '0204', nome: 'Receita de Demais Projetos' },
@@ -95,12 +99,18 @@ const App = () => {
           </button>
 
           {tela === 'tabelaPrecos' && <FnFin006_TabelaPrecos />}
-          {tela === 'ctsReceber' && <FnFin007_CtsReceber planoContas={planoContasReceber} />}
-          {tela === 'ctsPagar' && <FnFin008_CtsPagar planoContas={planoContasPagar} />}
+          {tela === 'ctsReceber' && (
+            <FnFin007_CtsReceber planoContas={planoContasReceber} />
+          )}
+          {tela === 'ctsPagar' && (
+            <FnFin008_CtsPagar planoContas={planoContasPagar} />
+          )}
           {tela === 'fluxoCaixa' && <FnFin009_FluxoCaixa />}
 
           {tela === 'historicoPrecos' && (
-            <div className="text-lg">📅 Em breve: histórico de alterações da tabela de preços.</div>
+            <div className="text-lg">
+              📅 Em breve: histórico de alterações da tabela de preços.
+            </div>
           )}
         </div>
       )}
